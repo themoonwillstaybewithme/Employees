@@ -8,7 +8,7 @@ use Inertia\Inertia;
 
 
 
-Route::get('/employee', [EmployeeController::class, 'index'])->name('employee.index');
+Route::post('/employee', [EmployeeController::class, 'store'])->name('employee.store');
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/employee', [EmployeeController::class, 'index'])->name('employee.index');
+    //เพื่อแสดงรายการพนักกงาน โดย EmployeeController เป็นการตั้งชื่อเพื่อให้ง่ายต่อการเรียกใช้
+    Route::get('/employee/create', [EmployeeController::class, 'create'])->name('employee.create'); //เพิ่มข้อมูลพนักงาน
 });
 
 require __DIR__.'/auth.php';

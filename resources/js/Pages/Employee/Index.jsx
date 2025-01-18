@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPerson } from '@fortawesome/free-solid-svg-icons';
 import { faPersonDress } from '@fortawesome/free-solid-svg-icons';
 
+
 // query ค่าที่ส่งมาจาก Controller
 // employees ค่าที่ส่งมาจาก Controller
 
@@ -22,6 +23,7 @@ export default function Index({ employees, query }) {
     const [sortConfig, setSortConfig] = useState({ key: 'emp_no', direction: 'ascending' });
     // ฟังก์ชันสำหรับการจัดเรียงข้อมูล
     const sortedEmployees = [...employees.data].sort((a, b) => {
+        console.log("🚀 ~ sortedEmployees ~ employees:", employees)
         
         
         if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -53,7 +55,7 @@ export default function Index({ employees, query }) {
         const currentPage = employees.current_page;
         const lastPage = employees.last_page;
         const paginationLinks = [];
-        // ถ้าหน้าปัจจุบันมากกว่า 1 ให้แสดงปุ่ม Previous
+        // ถ้าหน้าปัจจุบันมากกว่า 1 ให้แสดงปุ่ม Back
         if (currentPage > 1) {
             paginationLinks.push(
                 <button
@@ -87,7 +89,7 @@ export default function Index({ employees, query }) {
                 // สร้างปุ่มสำหรับแต่ละหน้า
                 <button
                     key={i} // กำหนด key สำหรับแต่ละปุ่มเพื่อให้ React สามารถติดตามแต่ละปุ่มได้
-                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0 ${i === currentPage ? 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-500 focus:outline-offset-0' : ''}`} // กำหนดคลาส CSS สำหรับปุ่ม ถ้าเป็นหน้าปัจจุบันให้เพิ่มคลาส 'active'
+                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-white focus:outline-offset-0 ${i === currentPage ? 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-500 hover:bg-white focus:outline-offset-0' : ''}`} // กำหนดคลาส CSS สำหรับปุ่ม ถ้าเป็นหน้าปัจจุบันให้เพิ่มคลาส 'active'
                     onClick={() => window.location.assign(`http://127.0.0.1:8000/employee?page=${i}`)} // เมื่อคลิกปุ่ม ให้เปลี่ยนหน้าไปยัง URL ของหน้านั้น
                 >
                     {i}
@@ -101,7 +103,7 @@ export default function Index({ employees, query }) {
                 className='relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0'>...</span>);
             paginationLinks.push(
                 <button key={lastPage} 
-                    className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0" 
+                    className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-white focus:outline-offset-0" 
                     onClick={() => window.location.assign(employees.last_page_url)}>
                     {lastPage}
                 </button>
@@ -190,6 +192,12 @@ export default function Index({ employees, query }) {
                                     >
                                         Gender
                                     </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-3 text-left text-basefont-medium text-black uppercase tracking-wider"
+                                    >
+                                        Image
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -202,6 +210,9 @@ export default function Index({ employees, query }) {
                                         <td className="pe-6 ps-12 py-4 whitespace-nowrap text-sm text-gray-500">
                                            {employee.gender == 'M' && <FontAwesomeIcon icon={faPerson} size="2x" className="text-sky-400" />}
                                            {employee.gender == 'F' && <FontAwesomeIcon icon={faPersonDress} size="2x" className="text-pink-400" />}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {employee.img && <img src={employee.img} className="w-10 h-10 rounded-full" />}
                                         </td>
                                     </tr>
                                 ))}
