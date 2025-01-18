@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPerson } from '@fortawesome/free-solid-svg-icons';
-import { faPersonDress } from '@fortawesome/free-solid-svg-icons';
+import FlashMessage from '@/Components/FlashMessage';
+import { usePage } from '@inertiajs/react';
 
 
 // query ค่าที่ส่งมาจาก Controller
 // employees ค่าที่ส่งมาจาก Controller
 
 export default function Index({ employees, query }) {
+
+
     // สร้าง state สำหรับการค้นหา
     const [search, setSearch] = useState(query || '');
     // ฟังก์ชันสำหรับการค้นหา
@@ -30,13 +31,14 @@ export default function Index({ employees, query }) {
             return sortConfig.direction === 'ascending' ? -1 : 1; //ให้ a อยู่ก่อน b
         }
         if (a[sortConfig.key] > b[sortConfig.key]) {
-            return sortConfig.direction === 'ascending' ? 1 : -1; //a อยู่หลัง b
+            return sortConfig.direction === 'ascending' ? -1 : 1; //ให้ b อยู่ก่อน a
+        }
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+            return sortConfig.direction === 'ascending' ? 1 : -1; //b อยู่หลัง a
         }
         return 0;
-        
-
     });
-    
+
     // ฟังก์ชันสำหรับการขอจัดเรียงข้อมูล
     const requestSort = (key) => {
         let direction = 'ascending';
@@ -48,7 +50,7 @@ export default function Index({ employees, query }) {
         setSortConfig({ key, direction });
     };
 
-    
+
 
     // ฟังก์ชันสำหรับการสร้างปุ่มการแบ่งหน้า
     const renderPagination = () => {
@@ -60,9 +62,9 @@ export default function Index({ employees, query }) {
             paginationLinks.push(
                 <button
                     key="prev"
-                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:ring-gray-500 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
                     onClick={() => window.location.assign(employees.prev_page_url)}>
-                    Back
+                    Previous
                 </button>
             );
         }
@@ -113,7 +115,8 @@ export default function Index({ employees, query }) {
         // ถ้าหน้าปัจจุบันน้อยกว่าหน้าสุดท้าย ให้แสดงปุ่ม Next
         if (currentPage < lastPage) {
             paginationLinks.push(
-                <button key="next" className="relative inline-flex items-center rounded-r-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:ring-gray-500 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" onClick={() => window.location.assign(employees.next_page_url)}>
+                <button key="next" className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                onClick={() => window.location.assign(employees.next_page_url)}>
                     Next
                 </button>
             );
@@ -121,10 +124,12 @@ export default function Index({ employees, query }) {
 
         return paginationLinks;
     };
-        
+
+    const { flash } = usePage().props;
 
     return (
         <div>
+
             <AuthenticatedLayout
 
                 header={
@@ -133,6 +138,7 @@ export default function Index({ employees, query }) {
                     </h2>
                 }>
                 <Head title="Employee" />
+                <FlashMessage flash={flash}/>
                 <div className="py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     {/* ฟอร์มสำหรับการค้นหา */}
                     <div className="flex justify-center mb-6">
@@ -141,56 +147,49 @@ export default function Index({ employees, query }) {
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="block w-full rounded-lg bg-white px-3.5 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 mr-6"
+                                className="block w-full rounded-lg bg-white px-3.5 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 mr-6"
                             />
-                            <button type="submit" className="cursor-pointer block rounded-xl bg-grey-300-600 px-3.5 py-2.5 text-center text-sm font-semibold text-blue-700 shadow-sm hover:text-white hover:bg-blue-600 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-blue-600 border border-blue-600">
-                              <label className='cursor-pointer'>Search</label> 
+                            <button type="submit" className="block rounded-xl bg-grey-300-600 px-3.5 py-2.5 text-center text-sm font-semibold text-indigo-700 shadow-sm hover:text-white hover:bg-indigo-600 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-indigo-600 border border-indigo-600">
+                                Search
                             </button>
-                            
                         </form>
                     </div>
 
                     {/* ตารางแสดงข้อมูลพนักงาน */}
                     {sortedEmployees.length > 0 ? (
-                        <div className='shadow-lg rounded-lg overflow-hidden mx-4 md:mx-10'>
-                            <table className="min-w-full divide-y divide-gray-200 ">
-                            <thead className="bg-gray-200">
+                        <table className="min-w-full divide-y divide-gray-200 ">
+                            <thead className="bg-gray-50">
                                 <tr>
-                                    
                                     <th
                                         scope="col"
-                                        className="px-6 py-3 text-left text-base font-bold text-black uppercase tracking-wider cursor-pointer"
+                                        className="px-6 py-3 text-left text-base font-bold text-gray-700 uppercase tracking-wider cursor-pointer"
                                         onClick={() => requestSort('emp_no')}
                                     >
-                                        <div> 
-                                            ID  {sortConfig.direction === 'ascending' && '↑'}
-                                                {sortConfig.direction === 'descending' && '↓'}
-                                        </div>  
-                                        
+                                        ID ↑↓
                                     </th>
                                     <th
                                         scope="col"
-                                        className="px-6 py-3 text-left text-basefont-medium text-black uppercase tracking-wider"
+                                        className="px-6 py-3 text-left text-basefont-medium text-gray-600 uppercase tracking-wider"
                                     >
-                                        FirstName
+                                        Name
                                     </th>
                                     <th
                                         scope="col"
-                                        className="px-6 py-3 text-left text-basefont-medium text-black uppercase tracking-wider"
+                                        className="px-6 py-3 text-left text-base font-medium text-gray-600 uppercase tracking-wider"
                                     >
                                         LastName
                                     </th>
                                     <th
                                         scope="col"
-                                        className="px-6 py-3 text-left text-basefont-medium text-black uppercase tracking-wider"
+                                        className="px-6 py-3 text-left text-base font-medium text-gray-600 uppercase tracking-wider"
                                     >
-                                        Birth
+                                        Birth Day
                                     </th>
                                     <th
                                         scope="col"
-                                        className="px-6 py-3 text-left text-basefont-medium text-black uppercase tracking-wider"
+                                        className="px-6 py-3 text-left text-base font-medium text-gray-600 uppercase tracking-wider"
                                     >
-                                        Gender
+                                        รูปภาพ
                                     </th>
                                     <th
                                         scope="col"
@@ -202,28 +201,26 @@ export default function Index({ employees, query }) {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {sortedEmployees.map((employee) => (
-                                    <tr className='hover:bg-gray-200' key={employee.emp_no}>
+                                    <tr key={employee.emp_no}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{employee.emp_no}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.first_name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.last_name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.birth_date}</td>
-                                        <td className="pe-6 ps-12 py-4 whitespace-nowrap text-sm text-gray-500">
-                                           {employee.gender == 'M' && <FontAwesomeIcon icon={faPerson} size="2x" className="text-sky-400" />}
-                                           {employee.gender == 'F' && <FontAwesomeIcon icon={faPersonDress} size="2x" className="text-pink-400" />}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.first_name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.last_name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.birth_date}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {employee.img && <img src={employee.img} className="w-10 h-10 rounded-full" />}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {employee.img && <img src={employee.img} className="w-10 h-10 rounded-full" />}
                                         </td>
                                     </tr>
-                                ))}
+                                ))}         
                             </tbody>
-                            </table>
-                        </div>
+                        </table>
                     ) : (
                         <div>
-                            <p className='text-lg font-bold flex justify-center mt-16'>Not Found.</p>
+                            <p className='text-lg font-bold flex justify-center mt-16'>No employees found.</p>
                             <div className="flex justify-center mt-10">
-                                <button onClick={() => window.history.back()} className='inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-base font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10'>Back</button>
+                                <button onClick={() => window.history.back()} className='inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-base font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10'>Back</button>
                             </div>
                         </div>
                     )}
@@ -235,7 +232,6 @@ export default function Index({ employees, query }) {
                         </div>
                     )}
                 </div >
-                
             </AuthenticatedLayout>
         </div>
 

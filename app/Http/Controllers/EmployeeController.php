@@ -60,7 +60,6 @@ class EmployeeController extends Controller
         Log::info($request->all());
 
         try{
-
         //ตรวจสอบข้อมูลที่รับมาจากฟอร์ม
         $validated = $request->validate([
             'birth_date' => 'required|date',
